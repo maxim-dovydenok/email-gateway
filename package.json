@@ -1,0 +1,16 @@
+{
+  "name": "email-gateway",
+  "version": "1.0.0",
+  "main": "bin/www",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mailparser": "^3.0.0",
+    "nodemailer": "^6.4.13",
+    "shiftby-config": "^1.0.0",
+    "smtp-server": "^3.7.0"
+  },
+  "scripts": {
+    "version": "echo $npm_package_version"
+  }
+}

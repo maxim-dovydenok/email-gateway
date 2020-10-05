@@ -1,0 +1,38 @@
+const rest = require('../src/components/rest');
+const smtp = require('../src/components/smtp');
+
+const options = require('../src/libraries/options');
+const HttpServer = require('../src/libraries/http-server');
+const SmtpServer = require('../src/libraries/smtp-server');
+const logger = require('../src/libraries/logger');
+const mailer = require('../src/libraries/mailer');
+
+(async () => {
+  await options.initialize([
+    ...Object.values(mailer.options),
+  ]);
+  await mailer.initialize();
+
+  const httpServer = new HttpServer(Number(options.get('PORT') || 8080), rest);
+  const smtpServer = new SmtpServer(Number(options.get('PORT') || 1025), smtp);
+
+  httpServer.listen();
+  smtpServer.listen();
+
+  const STOP_SIGNALS = ['SIGINT', 'SIGTERM'];
+
+  STOP_SIGNALS.forEach((signal) => {
+    process.on(signal, async () => {
+      await HttpServer.stopServers([httpServer]);
+      await SmtpServer.stopServers([smtpServer]);
+    });
+  });
+
+  process.on('unhandledRejection', async (reason) => {
+    logger.error(`Unhandled promise rejection. Reason: "${reason}"`);
+
+    await HttpServer.stopServers([httpServer]);
+    await SmtpServer.stopServers([smtpServer]);
+  });
+})();
+

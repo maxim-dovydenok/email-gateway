@@ -1,0 +1,19 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login
+        run: echo '${{ secrets.DOCKERHUB_ACCESS_TOKEN }}' | docker login --username shiftby --password-stdin
+      - name: Build
+        run: docker build . --file docker/Dockerfile --tag shiftby/email-gateway:$(npm --silent run version)
+      - name: Push
+        run: docker push shiftby/email-gateway:$(npm --silent run version)
